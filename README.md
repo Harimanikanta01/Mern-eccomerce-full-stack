@@ -1,7 +1,7 @@
 
 # Full-Stack E-Commerce Platform
 
-![E-Commerce Banner](https://mern-eccomerce01.netlify.app/assets/banner.png) <!-- optional image -->
+
 
 A modern **full-stack e-commerce web application** built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)** and **Context API** for state management. This project demonstrates a production-ready e-commerce platform with authentication, product management, cart functionality, and payment integration.
 
@@ -54,10 +54,24 @@ JWT_SECRET=your_jwt_secret_key
 
 npm run dev
 
+
+
+
+
 cd ../frontend
 npm install
 
 npm start
+```
 
-<img width="1366" height="768" alt="Screenshot (78)" src="https://github.com/user-attachments/assets/b0e5c115-7ef8-4944-9fbd-f0eb97466947" />
+
+<img width="1366" height="768" alt="Screenshot (78)" src="https://github.com/user-attachments/assets/420c8945-5804-4a63-8d65-40d84479a0ea" />
+
+
+
+<img width="1366" height="768" alt="Screenshot (79)" src="https://github.com/user-attachments/assets/f7dcd0cf-3ace-4893-9ea8-b2e17988dd07" />
+<img width="1366" height="768" alt="Screenshot (80)" src="https://github.com/user-attachments/assets/82a1d12d-f30f-429b-a388-22733d75f1f8" />
+<img width="1366" height="768" alt="Screenshot (81)" src="https://github.com/user-attachments/assets/426f3248-2f6a-43dc-9bac-e3ed010813e6" />
+
+
 
