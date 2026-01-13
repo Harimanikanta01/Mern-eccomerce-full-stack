@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { Outlet } from 'react-router-dom';
 import Header from './components/Header';
@@ -12,58 +11,92 @@ import { useDispatch } from 'react-redux';
 import { setUserDetails } from './store/userSlice';
 
 function App() {
-  const dispatch = useDispatch()
-  const [cartProductCount,setCartProductCount] = useState(0)
+  const dispatch = useDispatch();
+  const [cartProductCount, setCartProductCount] = useState(0);
+  const [loading, setLoading] = useState(true); // ✅ Optional: show loading state
 
-  const fetchUserDetails = async()=>{
-      const dataResponse = await fetch(SummaryApi.current_user.url,{
-        method : SummaryApi.current_user.method,
-        credentials : 'include'
-      })
+  // ✅ Fetch user details using JWT
+  const fetchUserDetails = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
-      const dataApi = await dataResponse.json()
+      const response = await fetch(SummaryApi.current_user.url, {
+        method: SummaryApi.current_user.method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if(dataApi.success){
-        dispatch(setUserDetails(dataApi.data))
-      }
+      if (!response.ok) return;
+
+      const data = await response.json();
+      if (data.success) dispatch(setUserDetails(data.data));
+    } catch (err) {
+      console.error('fetchUserDetails error', err);
+      dispatch(setUserDetails(null));
+    }
+  };
+
+  // ✅ Fetch cart count using JWT
+  const fetchUserAddToCart = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(SummaryApi.addToCartProductCount.url, {
+        method: SummaryApi.addToCartProductCount.method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setCartProductCount(data?.data?.count || 0);
+    } catch (err) {
+      console.error('fetchUserAddToCart error', err);
+      setCartProductCount(0);
+    }
+  };
+
+  useEffect(() => {
+    const initApp = async () => {
+      setLoading(true);
+      await fetchUserDetails();
+      await fetchUserAddToCart();
+      setLoading(false);
+    };
+    initApp();
+  }, []);
+
+  // ✅ Optional: Loading fallback
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-xl font-semibold">
+        Loading...
+      </div>
+    );
   }
 
-  const fetchUserAddToCart = async()=>{
-    const dataResponse = await fetch(SummaryApi.addToCartProductCount.url,{
-      method : SummaryApi.addToCartProductCount.method,
-      credentials : 'include'
-    })
-
-    const dataApi = await dataResponse.json()
-
-    setCartProductCount(dataApi?.data?.count)
-  }
-
-  useEffect(()=>{
-    /**user Details */
-    fetchUserDetails()
-    /**user Details cart product */
-    fetchUserAddToCart()
-
-  },[])
   return (
-    <>
-      <Context.Provider value={{
-          fetchUserDetails, // user detail fetch 
-          cartProductCount, // current user add to cart product count,
-          fetchUserAddToCart
-      }}>
-        <ToastContainer 
-          position='top-center'
-        />
-        
-        <Header/>
-        <main className='min-h-[calc(100vh-120px)] pt-16'>
-          <Outlet/>
-        </main>
-        <Footer/>
-      </Context.Provider>
-    </>
+    <Context.Provider
+      value={{
+        fetchUserDetails,
+        cartProductCount,
+        fetchUserAddToCart,
+      }}
+    >
+      <ToastContainer position="top-center" />
+      <Header />
+      <main className="min-h-[calc(100vh-120px)] pt-16">
+        <Outlet />
+      </main>
+      <Footer />
+    </Context.Provider>
   );
 }
 

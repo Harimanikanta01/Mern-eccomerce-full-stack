@@ -1,35 +1,46 @@
-import SummaryApi from "../common"
-import { toast } from 'react-toastify'
+import SummaryApi from "../common";
+import { toast } from "react-toastify";
 
-const addToCart = async(e,id) =>{
-    e?.stopPropagation()
-    e?.preventDefault()
+const addToCart = async (e, id) => {
+  e?.stopPropagation();
+  e?.preventDefault();
 
-    const response = await fetch(SummaryApi.addToCartProduct.url,{
-        method : SummaryApi.addToCartProduct.method,
-        credentials : 'include',
-        headers : {
-            "content-type" : 'application/json'
-        },
-        body : JSON.stringify(
-            { productId : id }
-        )
-    })
+  // 🔐 Get JWT token
+  const token = localStorage.getItem("token");
 
-    const responseData = await response.json()
+  if (!token) {
+    toast.error("Please login first");
+    return { success: false };
+  }
 
-    if(responseData.success){
-        toast.success(responseData.message)
+  try {
+    const response = await fetch(SummaryApi.addToCartProduct.url, {
+      method: SummaryApi.addToCartProduct.method,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // ✅ JWT
+      },
+      body: JSON.stringify({
+        productId: id,
+      }),
+    });
+
+    const responseData = await response.json();
+
+    if (responseData.success) {
+      toast.success(responseData.message);
     }
 
-    if(responseData.error){
-        toast.error(responseData.message)
+    if (responseData.error) {
+      toast.error(responseData.message);
     }
 
+    return responseData;
+  } catch (error) {
+    console.error("Add to cart error:", error);
+    toast.error("Something went wrong");
+    return { success: false };
+  }
+};
 
-    return responseData
-
-}
-
-
-export default addToCart
+export default addToCart;

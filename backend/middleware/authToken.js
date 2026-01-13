@@ -1,41 +1,28 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
-async function authToken(req,res,next){
-    try{
-        const token = req.cookies?.token
+function authToken(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
 
-        console.log("token",token)
-        if(!token){
-            return res.status(200).json({
-                message : "Please Login...!",
-                error : true,
-                success : false
-            })
+        if (!authHeader) {
+            return res.status(401).json({
+                message: "No token provided",
+                success: false
+            });
         }
 
-        jwt.verify(token, process.env.TOKEN_SECRET_KEY, function(err, decoded) {
-            console.log(err)
-            console.log("decoded",decoded)
-            
-            if(err){
-                console.log("error auth", err)
-            }
+        const token = authHeader.split(" ")[1]; // Bearer TOKEN
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
 
-            req.userId = decoded?._id
+        req.userId = decoded.userId;
+        next();
 
-            next()
+    } catch (err) {
+        return res.status(401).json({
+            message: "Invalid token",
+            success: false
         });
-
-
-    }catch(err){
-        res.status(400).json({
-            message : err.message || err,
-            data : [],
-            error : true,
-            success : false
-        })
     }
 }
 
-
-module.exports = authToken
+module.exports = authToken;
